@@ -15,6 +15,13 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const dns = require('dns');
+
+// GitHub Actions runners often fail IPv6 connections to this API ("fetch
+// failed"); prefer IPv4 to avoid it.
+if (dns.setDefaultResultOrder) {
+  try { dns.setDefaultResultOrder('ipv4first'); } catch (e) { /* older Node */ }
+}
 
 const API_URL = 'https://api.football-data.org/v4/competitions/WC/matches';
 
@@ -27,6 +34,25 @@ function getToken() {
   }
 }
 
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+async function getWithRetry(token, attempts) {
+  let lastErr;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fetch(API_URL, {
+        headers: { 'X-Auth-Token': token, 'User-Agent': 'wc26-pool-dashboard' },
+      });
+    } catch (e) {
+      lastErr = e;
+      const cause = e && e.cause ? (e.cause.code || e.cause.message || e.cause) : '';
+      console.warn('Attempt ' + i + '/' + attempts + ' failed: ' + (e && e.message) + (cause ? ' (' + cause + ')' : ''));
+      if (i < attempts) await sleep(2000 * i);
+    }
+  }
+  throw lastErr;
+}
+
 async function main() {
   const token = getToken();
   if (!token) {
@@ -34,7 +60,7 @@ async function main() {
     process.exit(1);
   }
 
-  const res = await fetch(API_URL, { headers: { 'X-Auth-Token': token } });
+  const res = await getWithRetry(token, 3);
 
   // Throttle awareness (football-data.org asks clients to watch these).
   const avail = res.headers.get('X-Requests-Available-Minute');
@@ -66,6 +92,7 @@ async function main() {
 }
 
 main().catch(function (e) {
-  console.error('Unexpected error:', e && e.message ? e.message : e);
+  const cause = e && e.cause ? (e.cause.code || e.cause.message || e.cause) : '';
+  console.error('Unexpected error:', (e && e.message ? e.message : e) + (cause ? ' | cause: ' + cause : ''));
   process.exit(1);
 });
