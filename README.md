@@ -105,7 +105,8 @@ For every **finished** match involving an owned team:
 | Group stage | +3 | +1 | +0 |
 | Knockout | +2 (the side that advances) | — | +0 |
 
-Plus a **win-margin bonus** (wins only): by 2 = +1, by 3 = +2, by 4+ = +3. A
+Plus a **win-margin bonus** (wins only): by 2 = +1, by 3 or more = +2 (so the
+most a team can score in one game is 5: a group win +3 plus the +2 bonus). A
 penalty-shootout win is a knockout win (+2) with no margin bonus (the feed gives
 us the winner automatically). A player's total is the sum across their three
 teams. Standings rank by total, then bonus, then wins. **Points lock in at

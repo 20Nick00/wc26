@@ -215,7 +215,7 @@
       '<div class="legend">' +
         '<span><b>Group:</b> win +' + r.group.win + ' · draw +' + r.group.draw + ' · loss +' + r.group.loss + '</span>' +
         '<span><b>Knockout:</b> win +' + r.knockout.win + ' · loss +' + r.knockout.loss + '</span>' +
-        '<span><b>Win bonus:</b> by 2 +1 · by 3 +2 · by 4+ +' + r.bonusMax + '</span>' +
+        '<span><b>Win bonus:</b> by 2 +1 · by 3+ +' + r.bonusMax + ' (max ' + (r.group.win + r.bonusMax) + ' pts/game)</span>' +
       '</div>' +
       '<p style="margin:0">Standings rank by total points (tiebreak: bonus, then wins). Points lock in at full-time; live matches show a provisional preview but don\'t count yet. ' +
       'Top 2 finish in the money (' + money(r.prizes.first) + ' / ' + money(r.prizes.second) + ').</p>' +

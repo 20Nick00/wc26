@@ -20,7 +20,7 @@ window.POOL_CONFIG = {
     group:    { win: 3, draw: 1, loss: 0 },
     knockout: { win: 2, loss: 0 }, // no draw: the side that advances is the winner
     bonusPerExtraGoal: 1,          // win-margin bonus = (margin - 1) * this ...
-    bonusMax: 3,                   // ... capped here. by1:+0 by2:+1 by3:+2 by4+:+3
+    bonusMax: 2,                   // ... capped here: by1:+0 by2:+1 by3+:+2 (max 5 pts in a group game)
     buyIn: 50,
     prizes: { first: 250, second: 50 },
   },

@@ -12,7 +12,7 @@
     group: { win: 3, draw: 1, loss: 0 },
     knockout: { win: 2, loss: 0 },
     bonusPerExtraGoal: 1,
-    bonusMax: 3,
+    bonusMax: 2,
   };
 
   var results = [];
@@ -30,18 +30,18 @@
   // ---- margin bonus = (margin-1) capped at 3 ----
   eq('bonus by1', Scoring.marginBonus(1, rules), 0);
   eq('bonus by2', Scoring.marginBonus(2, rules), 1);
-  eq('bonus by3', Scoring.marginBonus(3, rules), 2);
-  eq('bonus by4', Scoring.marginBonus(4, rules), 3);
-  eq('bonus by5 (cap)', Scoring.marginBonus(5, rules), 3);
+  eq('bonus by3 (cap)', Scoring.marginBonus(3, rules), 2);
+  eq('bonus by4 (cap)', Scoring.marginBonus(4, rules), 2);
+  eq('bonus by5 (cap)', Scoring.marginBonus(5, rules), 2);
   eq('bonus by0', Scoring.marginBonus(0, rules), 0);
 
-  // ---- group stage ----
+  // ---- group stage (max in any game is 5: win +3 plus +2 bonus) ----
   eq('group win by1', S(M({ homeScore: 1, awayScore: 0 }), 'home', rules).points, 3);
   eq('group win by2', S(M({ homeScore: 2, awayScore: 0 }), 'home', rules).points, 4);
-  eq('group win by3', S(M({ homeScore: 3, awayScore: 0 }), 'home', rules).points, 5);
-  eq('group win by4', S(M({ homeScore: 4, awayScore: 0 }), 'home', rules).points, 6);
-  eq('group win by5 (cap)', S(M({ homeScore: 5, awayScore: 0 }), 'home', rules).points, 6);
-  eq('group win 6-1 margin5 (cap)', S(M({ homeScore: 6, awayScore: 1 }), 'home', rules).points, 6);
+  eq('group win by3 (max 5)', S(M({ homeScore: 3, awayScore: 0 }), 'home', rules).points, 5);
+  eq('group win by4 (cap 5)', S(M({ homeScore: 4, awayScore: 0 }), 'home', rules).points, 5);
+  eq('group win by5 (cap 5)', S(M({ homeScore: 5, awayScore: 0 }), 'home', rules).points, 5);
+  eq('group win 7-1 margin6 (cap 5)', S(M({ homeScore: 7, awayScore: 1 }), 'home', rules).points, 5);
   eq('group draw', S(M({ homeScore: 1, awayScore: 1 }), 'home', rules).points, 1);
   eq('group loss', S(M({ homeScore: 0, awayScore: 1 }), 'home', rules).points, 0);
   eq('group result is draw', S(M({ homeScore: 1, awayScore: 1 }), 'home', rules).result, 'draw');
@@ -55,8 +55,8 @@
   // ---- knockouts ----
   eq('ko win by1', S(M({ stage: 'knockout', homeScore: 1, awayScore: 0 }), 'home', rules).points, 2);
   eq('ko win by2', S(M({ stage: 'knockout', homeScore: 2, awayScore: 0 }), 'home', rules).points, 3);
-  eq('ko win by3', S(M({ stage: 'knockout', homeScore: 3, awayScore: 0 }), 'home', rules).points, 4);
-  eq('ko win by4', S(M({ stage: 'knockout', homeScore: 4, awayScore: 0 }), 'home', rules).points, 5);
+  eq('ko win by3 (max 4)', S(M({ stage: 'knockout', homeScore: 3, awayScore: 0 }), 'home', rules).points, 4);
+  eq('ko win by4 (cap 4)', S(M({ stage: 'knockout', homeScore: 4, awayScore: 0 }), 'home', rules).points, 4);
   eq('ko loss', S(M({ stage: 'knockout', homeScore: 0, awayScore: 1 }), 'home', rules).points, 0);
 
   // ---- knockout shootout (level score) ----
@@ -105,16 +105,17 @@
   eq('Bob ranked 2', bob.rank, 2);
   eq('Alice X wins counted', alice.teams[0].wins, 1);
 
-  // tiebreak: equal points, more bonus wins the tie
+  // tiebreak: equal points, more bonus wins the tie (bonus before wins)
   var cfg2 = {
     rules: rules,
-    players: [{ name: 'HighBonus', teams: ['P'] }, { name: 'MoreWins', teams: ['Q', 'R'] }],
-    teams: { P: { display: 'P', iso: '' }, Q: { display: 'Q', iso: '' }, R: { display: 'R', iso: '' } },
+    players: [{ name: 'HighBonus', teams: ['P'] }, { name: 'LowBonus', teams: ['Q'] }],
+    teams: { P: { display: 'P', iso: '' }, Q: { display: 'Q', iso: '' } },
   };
   var m2 = [
-    M({ id: 'a', homeCode: 'P', homeScore: 4, awayScore: 0 }),          // P: 3+3 = 6 (bonus 3, 1 win)
-    M({ id: 'b', homeCode: 'Q', homeScore: 1, awayScore: 0 }),          // Q: 3 (0 bonus)
-    M({ id: 'c', homeCode: 'R', homeScore: 1, awayScore: 0 }),          // R: 3 (0 bonus) -> total 6, 2 wins
+    M({ id: 'a', homeCode: 'P', homeScore: 3, awayScore: 0 }),  // P: 3 + bonus 2 = 5 (bonus 2, 1 win)
+    M({ id: 'b', homeCode: 'Q', homeScore: 1, awayScore: 0 }),  // Q: 3
+    M({ id: 'c', homeCode: 'Q', homeScore: 0, awayScore: 0 }),  // Q: draw +1
+    M({ id: 'd', homeCode: 'Q', homeScore: 2, awayScore: 2 }),  // Q: draw +1 -> Q total 5 (bonus 0, 1 win)
   ];
   var st2 = Scoring.computeStandings(m2, cfg2);
   eq('tiebreak equal totals', st2[0].total === st2[1].total, true);
