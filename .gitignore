@@ -1,0 +1,7 @@
+# Never commit your API token
+token.txt
+.env
+*.local
+
+# Node
+node_modules/

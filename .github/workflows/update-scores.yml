@@ -1,0 +1,49 @@
+name: Update scores
+
+# Pulls the latest World Cup results and commits matches.json so the dashboard
+# stays current. The API token lives in a GitHub Actions secret, never in code.
+
+on:
+  workflow_dispatch:        # lets you trigger a refresh by hand (Actions tab → Run workflow)
+  schedule:
+    # Every ~10 minutes, offset from the top of the hour to dodge GitHub's
+    # scheduler drift. Cron is best-effort; use "Run workflow" before kickoffs.
+    - cron: '7,17,27,37,47,57 * * * *'
+
+# Allow the workflow to commit back to the repo.
+permissions:
+  contents: write
+
+# Don't pile up overlapping runs.
+concurrency:
+  group: update-scores
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch matches
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+        run: node fetch-matches.js
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain matches.json)" ]]; then
+            git add matches.json
+            git commit -m "Update scores ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git push
+          else
+            echo "No changes."
+          fi

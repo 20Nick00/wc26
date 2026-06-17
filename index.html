@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2026 World Cup Pool</title>
+  <meta name="description" content="Live standings for our 2026 FIFA World Cup pool." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="app-head">
+      <div>
+        <h1 class="app-title" id="title">2026 World Cup Pool</h1>
+        <p class="app-sub">
+          <span class="dot" id="status-dot"></span>
+          <span id="status-text">Loading…</span>
+        </p>
+      </div>
+      <button class="btn" id="refresh-btn" type="button" aria-label="Refresh now">
+        <span id="refresh-icon">↻</span> Refresh
+      </button>
+    </header>
+
+    <section class="pot" id="pot" aria-label="Prize pot"></section>
+
+    <div id="notices"></div>
+
+    <section aria-label="Standings">
+      <div class="standings" id="standings">
+        <div class="skeleton">Loading standings…</div>
+      </div>
+    </section>
+
+    <section aria-label="Live and recent matches">
+      <div class="sec-label" id="feed-label" hidden>Live &amp; recent</div>
+      <div class="feed" id="feed"></div>
+    </section>
+
+    <footer class="foot" id="foot"></footer>
+  </main>
+
+  <!-- Load order matters: config + overrides define globals, then logic, then app. -->
+  <script src="config.js"></script>
+  <script src="overrides.js"></script>
+  <script src="scoring.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
