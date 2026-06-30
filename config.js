@@ -18,7 +18,7 @@ window.POOL_CONFIG = {
   // ---- Scoring rules (from the pool's rule sheet) ------------------------
   rules: {
     group:    { win: 3, draw: 1, loss: 0 },
-    knockout: { win: 2, loss: 0 }, // no draw: the side that advances is the winner
+    knockout: { win: 3, draw: 1, loss: 0 }, // rules sheet: all games score +3/+1/+0
     bonusPerExtraGoal: 1,          // win-margin bonus = (margin - 1) * this ...
     bonusMax: 2,                   // ... capped here: by1:+0 by2:+1 by3+:+2 (max 5 pts in a group game)
     buyIn: 50,

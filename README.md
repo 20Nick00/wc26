@@ -100,16 +100,17 @@ match (`manualMatches`). Match ids are football-data.org's ids.
 
 For every **finished** match involving an owned team:
 
+All games (group **and** knockout) score the same:
+
 | | Win | Draw | Loss |
 |---|---|---|---|
-| Group stage | +3 | +1 | +0 |
-| Knockout | +2 (the side that advances) | — | +0 |
+| Any game | +3 | +1 | +0 |
 
 Plus a **win-margin bonus** (wins only): by 2 = +1, by 3 or more = +2 (so the
-most a team can score in one game is 5: a group win +3 plus the +2 bonus). A
-penalty-shootout win is a knockout win (+2) with no margin bonus (the feed gives
-us the winner automatically). A player's total is the sum across their three
-teams. Standings rank by total, then bonus, then wins. **Points lock in at
+most a team can score in one game is 5: a win +3 plus the +2 bonus). In a
+knockout, the side that advances counts as the win (+3); a penalty-shootout win
+has no margin bonus (level goals), and the feed gives us the winner
+automatically. A player's total is the sum across their three teams. Standings rank by total, then bonus, then wins. **Points lock in at
 full-time** — live matches show a provisional preview but don't count yet. Top
 two finish in the money ($250 / $50 of the $300 pot).
 

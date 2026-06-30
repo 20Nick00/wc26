@@ -10,7 +10,7 @@
 
   var rules = {
     group: { win: 3, draw: 1, loss: 0 },
-    knockout: { win: 2, loss: 0 },
+    knockout: { win: 3, draw: 1, loss: 0 },
     bonusPerExtraGoal: 1,
     bonusMax: 2,
   };
@@ -52,28 +52,28 @@
   eq('away win result', away.result, 'win');
   eq('home loss vs away win', S(M({ homeScore: 0, awayScore: 2 }), 'home', rules).points, 0);
 
-  // ---- knockouts ----
-  eq('ko win by1', S(M({ stage: 'knockout', homeScore: 1, awayScore: 0 }), 'home', rules).points, 2);
-  eq('ko win by2', S(M({ stage: 'knockout', homeScore: 2, awayScore: 0 }), 'home', rules).points, 3);
-  eq('ko win by3 (max 4)', S(M({ stage: 'knockout', homeScore: 3, awayScore: 0 }), 'home', rules).points, 4);
-  eq('ko win by4 (cap 4)', S(M({ stage: 'knockout', homeScore: 4, awayScore: 0 }), 'home', rules).points, 4);
+  // ---- knockouts (now score the same as group: +3/+1/+0, max 5) ----
+  eq('ko win by1', S(M({ stage: 'knockout', homeScore: 1, awayScore: 0 }), 'home', rules).points, 3);
+  eq('ko win by2', S(M({ stage: 'knockout', homeScore: 2, awayScore: 0 }), 'home', rules).points, 4);
+  eq('ko win by3 (max 5)', S(M({ stage: 'knockout', homeScore: 3, awayScore: 0 }), 'home', rules).points, 5);
+  eq('ko win by4 (cap 5)', S(M({ stage: 'knockout', homeScore: 4, awayScore: 0 }), 'home', rules).points, 5);
   eq('ko loss', S(M({ stage: 'knockout', homeScore: 0, awayScore: 1 }), 'home', rules).points, 0);
 
   // ---- knockout shootout (level score) ----
   var pend = S(M({ stage: 'knockout', homeScore: 1, awayScore: 1 }), 'home', rules);
   eq('ko tie pending', pend.pending, true);
   eq('ko tie pending points', pend.points, 0);
-  eq('ko tie winner=home, home gets +2', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, knockoutWinner: 'home' }), 'home', rules).points, 2);
+  eq('ko tie winner=home, home gets +3', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, knockoutWinner: 'home' }), 'home', rules).points, 3);
   eq('ko tie winner=home, away gets 0', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, knockoutWinner: 'home' }), 'away', rules).points, 0);
   eq('ko shootout win bonus is 0', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, knockoutWinner: 'home' }), 'home', rules).bonus, 0);
 
   // ---- explicit winnerSide from the feed (football-data.org) ----
-  eq('feed shootout: winnerSide home -> home +2', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, winnerSide: 'home' }), 'home', rules).points, 2);
+  eq('feed shootout: winnerSide home -> home +3', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, winnerSide: 'home' }), 'home', rules).points, 3);
   eq('feed shootout: winnerSide home -> away 0', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, winnerSide: 'home' }), 'away', rules).points, 0);
   eq('feed shootout bonus is 0', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, winnerSide: 'home' }), 'home', rules).bonus, 0);
-  eq('feed ko regulation win uses goal bonus', S(M({ stage: 'knockout', homeScore: 2, awayScore: 0, winnerSide: 'home' }), 'home', rules).points, 3);
+  eq('feed ko regulation win uses goal bonus', S(M({ stage: 'knockout', homeScore: 2, awayScore: 0, winnerSide: 'home' }), 'home', rules).points, 4);
   eq('feed group explicit draw', S(M({ homeScore: 0, awayScore: 0, winnerSide: 'draw' }), 'home', rules).points, 1);
-  eq('manual override beats feed winnerSide', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, winnerSide: 'away', knockoutWinner: 'home' }), 'home', rules).points, 2);
+  eq('manual override beats feed winnerSide', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1, winnerSide: 'away', knockoutWinner: 'home' }), 'home', rules).points, 3);
   eq('no winner reported -> pending', S(M({ stage: 'knockout', homeScore: 1, awayScore: 1 }), 'home', rules).pending, true);
 
   // ---- not final ----
@@ -93,14 +93,14 @@
   var matches = [
     M({ id: 'm1', homeCode: 'X', awayCode: 'Z', homeScore: 2, awayScore: 0 }), // X(group win by2)=4, Z=0
     M({ id: 'm2', homeCode: 'Y', awayCode: null, homeScore: 1, awayScore: 1 }), // Y draw = 1
-    M({ id: 'm3', stage: 'knockout', homeCode: 'Z', awayCode: null, homeScore: 1, awayScore: 0 }), // Z ko win = 2
+    M({ id: 'm3', stage: 'knockout', homeCode: 'Z', awayCode: null, homeScore: 1, awayScore: 0 }), // Z ko win = 3
   ];
   var st = Scoring.computeStandings(matches, cfg);
   var alice = st.find(function (r) { return r.name === 'Alice'; });
   var bob = st.find(function (r) { return r.name === 'Bob'; });
   eq('Alice total (4+1)', alice.total, 5);
-  eq('Bob total (0+2)', bob.total, 2);
-  eq('both-owned: Z scored independently', bob.teams[0].points, 2);
+  eq('Bob total (0+3)', bob.total, 3);
+  eq('both-owned: Z scored independently', bob.teams[0].points, 3);
   eq('Alice ranked 1', alice.rank, 1);
   eq('Bob ranked 2', bob.rank, 2);
   eq('Alice X wins counted', alice.teams[0].wins, 1);
